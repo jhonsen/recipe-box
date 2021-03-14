@@ -26,7 +26,8 @@ def save_picture(recipes_raw, url):
             if link is not None:
                 try:
                     if 'epicurious' in url:
-                        img_url = 'https://{}'.format(link[2:])
+                        #img_url = 'https://assets.{}'.format(link[2:])
+                        img_url = '{}'.format(link)
                         urllib.request.urlretrieve(img_url, path_save)
                     else:
                         urllib.request.urlretrieve(link, path_save)
