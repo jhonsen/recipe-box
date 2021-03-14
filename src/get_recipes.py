@@ -3,7 +3,7 @@ import time
 from urllib import request
 from urllib.error import HTTPError, URLError
 from bs4 import BeautifulSoup
-
+import random
 import sys
 from os import path
 import argparse
@@ -44,11 +44,132 @@ def get_recipe(url):
     except AttributeError:
         picture_link = None
 
+    try:
+        fat_content = scrap.fatContent()
+    except AttributeError:
+        fat_content = None
+
+    try:
+        satfat_content = scrap.satfatContent()
+    except AttributeError:
+        satfat_content = None
+
+    # try:
+    #     pufa_content = scrap.pufaContent()
+    # except AttributeError:
+    #     pufa_content = None
+    #
+    # try:
+    #     mufa_content = scrap.mufaContent()
+    # except AttributeError:
+    #     mufa_content = None
+
+    try:
+        sodium_content = scrap.sodiumContent()
+    except AttributeError:
+        sodium_content = None
+
+    try:
+        carb_content = scrap.carbContent()
+    except AttributeError:
+        carb_content = None
+
+    try:
+        protein_content = scrap.proteinContent()
+    except AttributeError:
+        protein_content = None
+
+    try:
+        fiber_content = scrap.fiberContent()
+    except AttributeError:
+        fiber_content = None
+
+    try:
+        calories = scrap.calories()
+    except AttributeError:
+        calories = None
+
+    try:
+        tag_cuisine = scrap.tagCuisine()
+    except AttributeError:
+        tag_cuisine = None
+
+    try:
+        tag_special = scrap.tagSpecial()
+    except AttributeError:
+        tag_special = None
+
+    try:
+        tag_meal = scrap.tagMeal()
+    except AttributeError:
+        tag_meal = None
+
+    try:
+        tag_tag = scrap.tagTag()
+    except AttributeError:
+        tag_tag = None
+
+    try:
+        tag_ingre = scrap.tagIngre()
+    except AttributeError:
+        tag_ingre = None
+
+    try:
+        tag_type = scrap.tagType()
+    except AttributeError:
+        tag_type = None
+
+    try:
+        tag_occasion = scrap.tagOccasion()
+    except AttributeError:
+        tag_occasion = None
+
+    try:
+        tag_tech = scrap.tagTech()
+    except AttributeError:
+        tag_tech = None
+
+    try:
+        tag_equip = scrap.tagEquip()
+    except AttributeError:
+        tag_equip = None
+
+    try:
+        tag_source = scrap.tagSource()
+    except AttributeError:
+        tag_source = None
+
+    try:
+        total_time = scrap.totalTime()
+    except AttributeError:
+        total_time = None
+
+
     return {
         'title': title,
         'ingredients': ingredients,
         'instructions': instructions,
         'picture_link': picture_link,
+        'fat_content' : fat_content,
+        'satfat_content': satfat_content,
+        # 'pufa_content' : pufa_content,
+        # 'mufa_content' : mufa_content,
+        'sodium_content': sodium_content,
+        'carb_content': carb_content,
+        'protein_content': protein_content,
+        'fiber_content': fiber_content,
+        'calories'    : calories,
+        'tag_cuisine' : tag_cuisine,
+        'tag_special' : tag_special,
+        'tag_meal'    : tag_meal,
+        'tag_tag'     : tag_tag,
+        'tag_ingredient': tag_ingre,
+        'tag_type'    : tag_type,
+        'tag_occasion': tag_occasion,
+        'tag_tech'    : tag_tech,
+        'tag_equipment': tag_equip,
+        'tag_source'  : tag_source,
+        'total_time'  : total_time
     }
 
 def get_all_recipes_fn(page_str, page_num):
@@ -77,10 +198,13 @@ def get_all_recipes_ar(page_num):
         soup = BeautifulSoup(request.urlopen(
             request.Request(url, headers=HEADERS)).read(), "html.parser")
         recipe_link_items = soup.select('article > a:nth-of-type(1)')
+        #recipe_link_items = soup.select('article.fixed-recipe-card div.fixed-recipe-card__h3 a.view-complete-item')
         recipe_links = list(set(
             [r['href'] for r in recipe_link_items
              if r is not None and r['href'].split('/')[1] == 'recipe']))
         return {base_url + r: get_recipe(base_url + r) for r in recipe_links}
+    except ConnectionResetError:
+        print('connection reset by peer')
     except (HTTPError, URLError):
         print('Could not parse page {}'.format(url))
         return []
@@ -120,7 +244,7 @@ def scrape_recipe_box(scraper, site_str, page_iter, status_interval=50):
             if i % status_interval == 0:
                 print('Scraping page {} of {}'.format(i, max(page_iter)))
                 quick_save(site_str, recipes)
-            time.sleep(args.sleep)
+            time.sleep(.3+args.sleep * random.random())
 
     print('Scraped {} recipes from {} in {:.0f} minutes'.format(
         len(recipes), site_str, (time.time() - start) / 60))
